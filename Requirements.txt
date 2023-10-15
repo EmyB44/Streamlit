@@ -4,3 +4,4 @@ seaborn
 requests
 streamlit
 plotly
+shap
