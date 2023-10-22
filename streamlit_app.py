@@ -65,3 +65,24 @@ if st.button("Prédire la probabilité de crédit"):
             st.error("Erreur lors de la récupération des prédictions de probabilité.")
     else:
         st.warning("Sélectionnez un client avant de prédire la probabilité de crédit.")
+
+# Features les plus importantes
+st.title("Features importances sur les clients")
+
+# Bouton pour afficher le graphique SHAP
+if st.button("Afficher le graphique SHAP"):
+    if selected_client:
+        # Effectuer une requête à l'API pour obtenir les valeurs SHAP
+        response = requests.get(f"http://127.0.0.1:5000/prediction_feature_importance/{selected_client}")
+
+        if response.status_code == 200:
+            # Récupérer le graphique SHAP au format JSON depuis l'API
+            shap_chart_json = response.json()
+
+            # Afficher le graphique dans Streamlit en utilisant st.image
+            st.image(generate_shap_chart(shap_chart_json), use_column_width=True, caption="SHAP Feature Importances")
+
+        else:
+            st.error("Erreur lors de la récupération du graphique SHAP depuis l'API.")
+    else:
+        st.warning("Sélectionnez un client avant d'afficher le graphique SHAP.")
