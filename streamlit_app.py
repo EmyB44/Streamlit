@@ -10,7 +10,11 @@ import json
 df = pd.read_csv('X_train.csv')
 
 # Sélectionnez un numéro de client à l'aide d'un widget de sélection
-selected_client = st.selectbox("Sélectionnez un numéro de client :", df['SK_ID_CURR'])
+df_sorted = df.sort_values(by='SK_ID_CURR')
+
+# Sélectionnez un numéro de client à l'aide d'un widget de sélection
+selected_client = st.selectbox("Sélectionnez un numéro de client :", df_sorted['SK_ID_CURR'])
+
 
 # Titre information sur les clients
 st.title("Informations sur les clients")
