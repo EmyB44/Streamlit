@@ -12,12 +12,12 @@ df = pd.read_csv('X_train.csv')
 # Sélectionnez un numéro de client à l'aide d'un widget de sélection
 df_sorted = df.sort_values(by='SK_ID_CURR')
 
-# Sélectionnez un numéro de client à l'aide d'un widget de sélection
+
 selected_client = st.selectbox("Sélectionnez un numéro de client :", df_sorted['SK_ID_CURR'])
 
 
 # Titre information sur les clients
-st.title("Informations sur les clients")
+st.title("Prédiction de défaut des clients")
 
 # Bouton pour prédire
 if st.button("Prédire"):
@@ -59,7 +59,7 @@ if st.button("Prédire le risque de non remboursement de crédit"):
             fig = go.Figure(go.Indicator(
                 mode="gauge+number",
                 value=pourcentage_credit,
-                title={'text': "Clients avec Crédit"},
+                title={'text': "Risque de défaut"},
                 gauge={
                     'axis': {'range': [0, 100]},
                     'bar': {'color': 'darkblue'},
