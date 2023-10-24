@@ -210,6 +210,5 @@ if st.button("Afficher le résumé statistique du DataFrame"):
     else:
         st.error("Erreur lors de la récupération du résumé statistique global depuis l'API.")
 
-# Zone de texte pour saisir l'ID du client
-selected_client = st.number_input("ID du client pour le résumé spécifique", min_value=0)
+
 
