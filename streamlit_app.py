@@ -16,8 +16,33 @@ df_sorted = df.sort_values(by='SK_ID_CURR')
 selected_client = st.selectbox("Sélectionnez un numéro de client :", df_sorted['SK_ID_CURR'])
 
 
-# Titre information sur les clients
-st.title("Prédiction de défaut des clients")
+
+# Informations globales
+st.title('Informations du client')
+
+
+if st.button('Rechercher'):
+    # Effectuer une requête à l'API Flask pour obtenir les informations du client
+    response = requests.get(f"https://api-projet-7-emilie-brosseau.onrender.com/id_client/{selected_client}")
+
+    if response.status_code == 200:
+        client_info = response.json()
+        if not client_info:
+            st.error('Client non trouvé')
+        else:
+            # Affichez les informations du client sous forme de tableau
+            st.write('Informations du client :')
+            st.table(client_info)
+    else:
+        st.error("Erreur lors de la récupération des informations du client depuis l'API.")
+
+
+
+
+
+
+# Titre risque de défaut de remboursement sur les clients
+st.title("Prédiction de risque sur le  remboursement des clients")
 
 # Bouton pour prédire
 if st.button("Prédire"):
@@ -41,6 +66,9 @@ if st.button("Prédire"):
             st.error("Erreur lors de la récupération des prédictions.")
     else:
         st.warning("Sélectionnez un client avant de prédire.")
+
+
+
 
 # Visualisation remboursement prêt
 st.title("Prédictions risque de défaut de remboursement")
@@ -79,13 +107,15 @@ if st.button("Prédire le risque de non remboursement de crédit"):
     else:
         st.warning("Sélectionnez un client avant de prédire la probabilité de défaut de remboursement.")
 
-## Titre
-st.title("Features importances sur les clients")
+
+
+# Titre features importances
+st.title("Features importances sur les clients les données à prendre en compte")
 
 
 
 # Bouton pour afficher le graphique SHAP
-if st.button("Afficher le graphique SHAP") and selected_client:
+if st.button("Afficher le graphique SHAP (20 fonctionnalités les plus importantes)") and selected_client:
     # Effectuer une requête à l'API pour obtenir les valeurs SHAP
     response = requests.get(f"https://api-projet-7-emilie-brosseau.onrender.com/prediction_feature_importance/{selected_client}")
 
@@ -119,3 +149,67 @@ if st.button("Afficher le graphique SHAP") and selected_client:
         st.error("Erreur lors de la récupération du graphique SHAP depuis l'API.")
 elif not selected_client:
     st.warning("Sélectionnez un client avant d'afficher le graphique SHAP.")
+
+
+# Bouton pour afficher le graphique SHAP
+if st.button("Afficher le graphique SHAP (20 fonctionnalités les moins importantes)") and selected_client:
+    # Effectuer une requête à l'API pour obtenir les valeurs SHAP
+    response = requests.get(f"https://api-projet-7-emilie-brosseau.onrender.com/prediction_feature_importance/{selected_client}")
+
+    if response.status_code == 200:
+        # Récupérer le graphique SHAP au format JSON depuis l'API
+        shap_chart_json = response.json()
+
+        # Créer un graphique à partir des données JSON
+        if shap_chart_json:
+            shap_values = {k: v for k, v in shap_chart_json.items()}
+            shap_df = pd.DataFrame(shap_values.items(), columns=['Feature', 'SHAP Value'])
+
+            # Trier le DataFrame par SHAP values
+            shap_df = shap_df.sort_values(by='SHAP Value', ascending=True)  # Tri ascendant
+
+            # Limiter aux 20 fonctionnalités les moins importantes
+            shap_df_bottom20 = shap_df.head(20)
+
+            # Créer un graphique à barres
+            plt.figure(figsize=(10, 6))
+            plt.barh(shap_df_bottom20['Feature'], shap_df_bottom20['SHAP Value'])
+            plt.xlabel('SHAP Value')
+            plt.ylabel('Feature')
+            plt.title('Graphique SHAP des 20 fonctionnalités les moins importantes')
+
+            # Afficher le graphique dans Streamlit
+            st.pyplot(plt)
+        else:
+            st.error("Les données SHAP reçues de l'API sont vides ou mal formatées.")
+    else:
+        st.error("Erreur lors de la récupération du graphique SHAP depuis l'API.")
+elif not selected_client:
+    st.warning("Sélectionnez un client avant d'afficher le graphique SHAP.")
+
+
+
+# Titre description statistique
+st.title("Description statistique de tout le fichier")
+
+
+# Bouton pour afficher le résumé statistique
+if st.button("Afficher le résumé statistique du DataFrame"):
+    # Effectuer une requête à l'API Flask pour obtenir le résumé statistique global
+    response = requests.get(f"https://api-projet-7-emilie-brosseau.onrender.com/describe")
+
+    if response.status_code == 200:
+        describe_dict = response.json()
+
+        # Créez un DataFrame à partir du dictionnaire
+        describe_df = pd.DataFrame(describe_dict)
+
+        # Affichez le résumé statistique global sous forme de tableau
+        st.write('Résumé statistique global du DataFrame :')
+        st.table(describe_df)
+    else:
+        st.error("Erreur lors de la récupération du résumé statistique global depuis l'API.")
+
+# Zone de texte pour saisir l'ID du client
+selected_client = st.number_input("ID du client pour le résumé spécifique", min_value=0)
+
